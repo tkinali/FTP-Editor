@@ -13,7 +13,7 @@ storage.get('foobar', function(error, data) {
   console.log(data);
 });*/
 
-var mainWindow, connectionsTree, connectionsContextMenu, fileContextMenu;
+var mainWindow, connectionsTree, connectionsContextMenu, fileContextMenu, folderContextMenu;
 function doOnLoad() {
     mainWindow = new dhtmlXLayoutObject({
         parent: document.body,  // parent container
@@ -40,8 +40,8 @@ function doOnLoad() {
             , items: [
                 {id: "1_1", text: "Text 1_1", userdata: { type: "file" }},
                 {id: "1_2", text: "Text 1_2", userdata: { type: "file" }},
-                {id: "1_3", text: "Text 1_3", kids: true},
-                {id: "1_4", text: "Text 1_4", kids: true}
+                {id: "1_3", text: "Text 1_3", kids: true, userdata: { type: "folder" }, items: [{id:"1_3_1", text: "Text 1_3_1", userdata: { type: "file" }}]},
+                {id: "1_4", text: "Text 1_4", kids: true, userdata: { type: "folder" }, items: [{id:"1_4_1", text: "Text 1_4_1", userdata: { type: "file" }}]}
             ],
             userdata: {
                 type: "connection"
@@ -56,6 +56,7 @@ function doOnLoad() {
         if(connectionsContextMenu == null) {
             connectionsContextMenu = new dhtmlXMenuObject({
                 context: true,
+                open_mode: "win",
                 items: [
                     {id: "editConnection", text: 'Edit Connection'},
                     {type: "separator"},
@@ -65,12 +66,15 @@ function doOnLoad() {
 
             connectionsContextMenu.attachEvent("onClick", function(id) {
                 console.log(id);
-            })
+            });
+        } else {
+            connectionsContextMenu.hideContextMenu();
         }
 
         if(fileContextMenu == null) {
             fileContextMenu = new dhtmlXMenuObject({
                 context: true,
+                open_mode: "win",
                 items: [
                     {id: "openFile", text: 'Open File'},
                     {id: "renameFile", text: 'Rename'},
@@ -81,7 +85,28 @@ function doOnLoad() {
 
             fileContextMenu.attachEvent("onClick", function(id) {
                 console.log(id);
-            })
+            });
+        } else {
+            fileContextMenu.hideContextMenu();
+        }
+
+        if(folderContextMenu == null) {
+            folderContextMenu = new dhtmlXMenuObject({
+                context: true,
+                open_mode: "win",
+                items: [
+                    {id: "newFolder", text: 'New Folder'},
+                    {id: "newFile", text: 'New File'},
+                    {type: "separator"},
+                    {id: "deleteFolder", text: 'Delete Folder'}
+                ]
+            });
+
+            folderContextMenu.attachEvent("onClick", function(id) {
+                console.log(id);
+            });
+        } else {
+            folderContextMenu.hideContextMenu();
         }
 
         switch(connectionsTree.getUserData(id, "type")) {
@@ -92,8 +117,12 @@ function doOnLoad() {
             case "file":
                 fileContextMenu.showContextMenu(x, y);
                 break;
+
+            case "folder":
+                folderContextMenu.showContextMenu(x, y);
+                break;
         }
-        return false;
+        return true;
     });
 }
 doOnLoad();
