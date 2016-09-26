@@ -4,13 +4,24 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
+const {ipcMain} = require('electron')
+ipcMain.on('open-window', (event, arg) => {
+  switch(arg) {
+    case 'createConnectionWindow':
+      createConnectionWindow();
+      break;
+    case 'closeConnectionWindow':
+      connectionWindow.close();
+  }
+  event.returnValue = 'ok'
+})
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1024, height: 768, icon: __dirname + '/assets/icons/icon.png'})
+  mainWindow = new BrowserWindow({width: 1024, height: 768, minWidth:800, minHeight:600, icon: __dirname + '/assets/icons/icon.png'})
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
@@ -24,6 +35,19 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+  })
+}
+
+let connectionWindow
+function createConnectionWindow() {
+  connectionWindow = new BrowserWindow({width: 475, height: 420, darkTheme: true/*, modal: true, parent: mainWindow*/})
+  connectionWindow.loadURL(`file://${__dirname}/createConnection.html`)
+  //connectionWindow.webContents.openDevTools()
+  connectionWindow.on('closed', function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    connectionWindow = null
   })
 }
 

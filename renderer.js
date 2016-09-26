@@ -1,6 +1,11 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
+const remote = require('electron').remote; 
+const BrowserWindow = remote.BrowserWindow;
+
+const {ipcRenderer} = require('electron')
+
 /*const storage = require('electron-json-storage');
 
 storage.set('foobar', { foo: 'bar' }, function(error) {
@@ -13,21 +18,20 @@ storage.get('foobar', function(error, data) {
   console.log(data);
 });*/
 
-var mainWindow, connectionsTree, connectionsContextMenu, fileContextMenu, folderContextMenu;
+var dhtmlxMainWindow, connectionsTree, connectionsContextMenu, fileContextMenu, folderContextMenu;
 function doOnLoad() {
-    mainWindow = new dhtmlXLayoutObject({
+    dhtmlxMainWindow = new dhtmlXLayoutObject({
         parent: document.body,  // parent container
         pattern: "2U"           // layout's pattern
     });
 
-    mainWindow.cells("a").setWidth(250);
-    mainWindow.cells("a").setText("Connections");
-    mainWindow.cells("b").hideHeader();
+    dhtmlxMainWindow.cells("a").setWidth(250);
+    dhtmlxMainWindow.cells("a").setText("Connections");
+    dhtmlxMainWindow.cells("b").hideHeader();
 
-    //myLayout.cells("b").attachObject("editor");
-    mainWindow.cells("b").attachObject("editor");
+    dhtmlxMainWindow.cells("b").attachObject("editor");
 
-    connectionsTree = mainWindow.cells("a").attachTreeView({
+    connectionsTree = dhtmlxMainWindow.cells("a").attachTreeView({
 		root_id: "",
         context_menu: true,
 		iconset: "font_awesome",
@@ -59,13 +63,25 @@ function doOnLoad() {
                 open_mode: "win",
                 items: [
                     {id: "editConnection", text: 'Edit Connection'},
+                    {id: "newConnection", text: 'New Connection'},
                     {type: "separator"},
-                    {id: "newConnection", text: 'New Connection'}
+                    {id: "deleteConnection", text: "Delete Account"}
                 ]
             });
 
             connectionsContextMenu.attachEvent("onClick", function(id) {
                 console.log(id);
+                switch(id) {
+                    case "newConnection":
+                        ipcRenderer.sendSync('open-window', 'createConnectionWindow');
+                        break;
+
+                    case "editConnection":
+                        break;
+
+                    case "deleteConnection":
+                        break;
+                }
             });
         } else {
             connectionsContextMenu.hideContextMenu();
@@ -104,6 +120,16 @@ function doOnLoad() {
 
             folderContextMenu.attachEvent("onClick", function(id) {
                 console.log(id);
+                switch(id) {
+                    case "newFolder":
+                        break;
+
+                    case "newFile":
+                        break;
+
+                    case "deleteFolder":
+                        break;
+                }
             });
         } else {
             folderContextMenu.hideContextMenu();
@@ -126,3 +152,29 @@ function doOnLoad() {
     });
 }
 doOnLoad();
+
+
+/*var size = remote.getCurrentWindow().getBounds()
+var window;
+function createConnectionWindow() {
+    var width = 475;
+    var height = 420;
+    var x = (size.width-width)/2;
+    var y = (size.height-height)/2;
+
+    var connectionWindow = new dhtmlXWindows();
+    if(window == null) {
+        connectionWindow.createWindow("createConnection", x, y, width, height);
+
+        window = connectionWindow.window("createConnection"); 
+        window.setText("New Connection");
+        window.denyResize();
+        window.denyPark();
+        window.attachURL(`file://${__dirname}/createConnection.html`);
+
+        window.attachEvent("onClose", function(win){
+            window = null;
+            return true;
+        });
+    } 
+}*/
