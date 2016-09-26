@@ -25,4 +25,6 @@ div#editor { position: relative; width: 100%; height: 100%; overflow: auto; colo
 .dhxform_obj_material .dhxform_textarea { border-color:#666; color:#AAA; }
 .dhxform_obj_material div.dhxform_label { color:#999; }
 .dhxform_obj_material div.dhxform_btn { background-color:#111; border:1px solid #000; color:#CCC; }
-.dhxform_btn.dhxform_btn_over { background-color:#222 !important; color:#CCC; }
+.dhxform_btn.dhxform_btn_over { background-color:#000 !important; color:#CCC; }
+.dhxform_obj_material div.dhxform_btn:focus { color:#CCC; }
+.dhxform_obj_material div.dhxform_control div.dhxform_note { color:#666; }

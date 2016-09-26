@@ -4,7 +4,23 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
-const {ipcMain} = require('electron')
+const ipcMain = require('electron').ipcMain
+const Menu = require('electron').Menu
+
+const template = [{
+  label: 'File', 
+  submenu: [{
+    label: 'New Connection', 
+    accelerator: 'CmdOrCtrl+N', 
+    click(item, focusedWindow) { 
+      createConnectionWindow() }
+    }
+  ]
+}];
+
+const menu = Menu.buildFromTemplate(template)
+Menu.setApplicationMenu(menu)
+
 ipcMain.on('open-window', (event, arg) => {
   switch(arg) {
     case 'createConnectionWindow':
@@ -24,7 +40,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({width: 1024, height: 768, minWidth:800, minHeight:600, icon: __dirname + '/assets/icons/icon.png'})
 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`)
+  mainWindow.loadURL(`file://${__dirname}/windows/index.html`)
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
@@ -40,13 +56,11 @@ function createWindow () {
 
 let connectionWindow
 function createConnectionWindow() {
-  connectionWindow = new BrowserWindow({width: 475, height: 420, darkTheme: true/*, modal: true, parent: mainWindow*/})
-  connectionWindow.loadURL(`file://${__dirname}/createConnection.html`)
-  //connectionWindow.webContents.openDevTools()
+  connectionWindow = new BrowserWindow({width: 450, height: 510, darkTheme: true, modal: true, parent: mainWindow})
+  connectionWindow.loadURL(`file://${__dirname}/windows/createConnection.html`)
+  connectionWindow.webContents.openDevTools()
+  connectionWindow.setMenu(null);
   connectionWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     connectionWindow = null
   })
 }
