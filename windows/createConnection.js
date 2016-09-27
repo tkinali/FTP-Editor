@@ -1,7 +1,8 @@
 const electron = require('electron').remote
-const storage = require('electron-json-storage');
-const {ipcRenderer} = require('electron')
+const ipcRenderer = require('electron').ipcRenderer
 const dialog = electron.dialog
+const Config = require('electron-config');
+const config = new Config();
 
 layout = new dhtmlXLayoutObject({
     parent: document.body,
@@ -68,21 +69,30 @@ myForm.attachEvent("onButtonClick", function(id){
                 dialog.showMessageBox({type: 'error', buttons:['OK'], title: 'Error', message: "Please correct the following errors:\n\n- "+errors})
             }
 
-            var connectionData = {connections: []};
+            var connectionData = [];
+            var connections = config.get('connections');
+            
+            if(undefined != connections) {
+                connectionData = connections;
+            }
+            connectionData.push(settings);
+            config.set('connections', connectionData);
+            ipcRenderer.sendSync('open-window', 'closeConnectionWindow');
+            
 
-            storage.get('connections', function(error, data) {
+            /*storage.get('connections', function(error, data) {
                 if (error) throw error;
 
                 if(undefined != data.connections) {
                     connectionData = data;
                 }
                 connectionData.connections.push(settings)
-                console.log(connectionData)
+                
                 storage.set('connections', connectionData, function(error) {
                     if (error) throw error;
                 });
                 ipcRenderer.sendSync('open-window', 'closeConnectionWindow');
-            });
+            });*/
             break;
     }
 })
